@@ -4,5 +4,5 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.db_select, name='index'),
+    path('api/databases', views.databases, name='databases')
 ]
