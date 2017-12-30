@@ -7,9 +7,6 @@ import Http
 import Json.Decode as Decode
 
 
---import Types exposing (..)
-
-
 main =
     Html.program
         { init = init
@@ -20,7 +17,8 @@ main =
 
 
 type Page
-    = SelectDatabasePage
+    = HomePage
+    | SelectDatabasePage
     | DatabasePage
     | TablePage
 
@@ -45,7 +43,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model SelectDatabasePage Maybe.Nothing Array.empty, Cmd.none )
+    ( Model HomePage Maybe.Nothing Array.empty, Cmd.none )
 
 
 
@@ -53,20 +51,39 @@ init =
 
 
 type Msg
-    = GoSelectDatabasePage
+    = ClickSelectDatabasePage
+    | GoSelectDatabasePage
     | GotDatabases (Result Http.Error (Array.Array Database))
+    | ClickDatabasePage String
+    | GoDatabasePage
+    | GotTables (Result Http.Error (Array.Array Database))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GoSelectDatabasePage ->
-            ( { model | currentPage = SelectDatabasePage }, getDatabases )
+        ClickSelectDatabasePage ->
+            ( model, getDatabases )
 
         GotDatabases (Ok databases) ->
-            ( { model | databases = databases }, Cmd.none )
+            ( { model | databases = databases, currentPage = SelectDatabasePage }, Cmd.none )
+
+        GoSelectDatabasePage ->
+            ( model, Cmd.none )
 
         GotDatabases (Err e) ->
+            ( model, Cmd.none )
+
+        ClickDatabasePage databaseName ->
+            ( { model | currentDatabase = Just databaseName }, getTables )
+
+        GotTables (Ok tables) ->
+            ( { model | currentPage = DatabasePage }, Cmd.none )
+
+        GotTables (Err e) ->
+            ( model, Cmd.none )
+
+        GoDatabasePage ->
             ( model, Cmd.none )
 
 
@@ -88,6 +105,9 @@ renderPage model =
     let
         pageContent =
             case model.currentPage of
+                HomePage ->
+                    renderHomePage model
+
                 SelectDatabasePage ->
                     renderSelectDatabasePage model
 
@@ -103,20 +123,45 @@ renderPage model =
 renderMenu : Model -> Html Msg
 renderMenu model =
     div []
-        [ button [ onClick GoSelectDatabasePage ] [ text "Select Database" ]
+        [ button [ onClick ClickSelectDatabasePage ] [ text "Select Database" ]
         ]
+
+
+renderHomePage : Model -> Html Msg
+renderHomePage model =
+    div []
+        [ text "Welcome" ]
 
 
 renderSelectDatabasePage : Model -> Html Msg
 renderSelectDatabasePage model =
     div []
-        [ text "Select Database" ]
+        [ text "Select Database"
+        , model.databases
+            |> Array.map renderDatabaseLink
+            |> Array.toList
+            |> ul []
+        ]
+
+
+renderDatabaseLink : Database -> Html Msg
+renderDatabaseLink database =
+    li []
+        [ button [ onClick (ClickDatabasePage database.djangoName) ]
+            [ text <| "#" ++ database.actualName ]
+        , text database.djangoName
+        ]
 
 
 renderDatabasePage : Model -> Html Msg
 renderDatabasePage model =
-    div []
-        [ text "Database" ]
+    case model.currentDatabase of
+        Nothing ->
+            div [] []
+
+        Just currentDatabase ->
+            div []
+                [ text "Database ", text currentDatabase ]
 
 
 renderTablePage : Model -> Html Msg
@@ -159,3 +204,14 @@ databaseDecoder =
         (Decode.at [ "django_name" ] Decode.string)
         (Decode.at [ "actual_name" ] Decode.string)
         (Decode.at [ "is_postgres" ] Decode.bool)
+
+
+getTables : Cmd Msg
+getTables =
+    let
+        url =
+            "http://localhost:8001/djpg/api/databases"
+
+        -- TODO
+    in
+    Http.send GotTables (Http.get url databasesDecoder)
