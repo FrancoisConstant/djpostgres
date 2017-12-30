@@ -5,6 +5,8 @@ import Html exposing (..)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
+
+
 --import Types exposing (..)
 
 
@@ -16,10 +18,12 @@ main =
         , subscriptions = subscriptions
         }
 
+
 type Page
     = SelectDatabasePage
     | DatabasePage
     | TablePage
+
 
 type alias Database =
     { djangoName : String
@@ -27,8 +31,10 @@ type alias Database =
     , isPostgres : Bool
     }
 
+
 type alias DatabasesListing =
     { databases : List Database }
+
 
 type alias Model =
     { currentPage : Page
@@ -45,10 +51,10 @@ init =
 
 -- UPDATE
 
+
 type Msg
     = GoSelectDatabasePage
     | GotDatabases (Result Http.Error (Array.Array Database))
-
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -58,10 +64,11 @@ update msg model =
             ( { model | currentPage = SelectDatabasePage }, getDatabases )
 
         GotDatabases (Ok databases) ->
-            (Model model.currentPage model.currentDatabase databases, Cmd.none)
+            ( Model model.currentPage model.currentDatabase databases, Cmd.none )
 
         GotDatabases (Err e) ->
-            (model, Cmd.none)
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -71,49 +78,52 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "DJ Postgres" ]
-        , render_menu model
-        , render_page model
+        , renderMenu model
+        , renderPage model
         ]
 
 
-render_page : Model -> Html Msg
-render_page model =
+renderPage : Model -> Html Msg
+renderPage model =
     let
-        page_content =
+        pageContent =
             case model.currentPage of
                 SelectDatabasePage ->
-                    render_select_database_page model
+                    renderSelectDatabasePage model
+
                 DatabasePage ->
-                    render_database_page model
+                    renderDatabasePage model
+
                 TablePage ->
-                     render_table_page model
+                    renderTablePage model
     in
-        page_content
+    pageContent
 
 
-render_menu : Model -> Html Msg
-render_menu model =
+renderMenu : Model -> Html Msg
+renderMenu model =
     div []
         [ button [ onClick GoSelectDatabasePage ] [ text "Select Database" ]
         ]
 
 
-render_select_database_page : Model -> Html Msg
-render_select_database_page model =
+renderSelectDatabasePage : Model -> Html Msg
+renderSelectDatabasePage model =
     div []
         [ text "Select Database" ]
 
 
-render_database_page : Model -> Html Msg
-render_database_page model =
+renderDatabasePage : Model -> Html Msg
+renderDatabasePage model =
     div []
         [ text "Database" ]
 
 
-render_table_page : Model -> Html Msg
-render_table_page model =
+renderTablePage : Model -> Html Msg
+renderTablePage model =
     div []
         [ text "Table" ]
+
 
 
 -- SUBSCRIPTIONS
@@ -126,12 +136,16 @@ subscriptions model =
 
 
 -- HTTP
+
+
 getDatabases : Cmd Msg
 getDatabases =
-  let
-    url = "http://localhost:8001/djpg/api/databases"
-  in
+    let
+        url =
+            "http://localhost:8001/djpg/api/databases"
+    in
     Http.send GotDatabases (Http.get url databasesDecoder)
+
 
 databasesDecoder : Decode.Decoder (Array.Array Database)
 databasesDecoder =
