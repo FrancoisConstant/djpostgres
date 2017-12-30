@@ -29,8 +29,9 @@ type alias Database =
     , isPostgres : Bool
     }
 
+
 type alias Table =
-    { name: String }
+    { name : String }
 
 
 type alias DatabasesListing =
@@ -165,10 +166,11 @@ renderDatabasePage model =
 
         Just currentDatabase ->
             div []
-                [ text "Database ", text currentDatabase,
-                  model.tables
-                      |> List.map (\table -> li [] [ text table.name ])
-                      |> ul []
+                [ text "Database "
+                , text currentDatabase
+                , model.tables
+                    |> List.map (\table -> li [] [ text table.name ])
+                    |> ul []
                 ]
 
 
