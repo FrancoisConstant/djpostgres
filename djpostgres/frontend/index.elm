@@ -64,7 +64,7 @@ update msg model =
             ( { model | currentPage = SelectDatabasePage }, getDatabases )
 
         GotDatabases (Ok databases) ->
-            ( Model model.currentPage model.currentDatabase databases, Cmd.none )
+            ( { model | databases = databases }, Cmd.none )
 
         GotDatabases (Err e) ->
             ( model, Cmd.none )
