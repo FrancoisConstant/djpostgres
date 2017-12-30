@@ -29,6 +29,9 @@ type alias Database =
     , isPostgres : Bool
     }
 
+type alias Table =
+    { name: String }
+
 
 type alias DatabasesListing =
     { databases : List Database }
@@ -38,12 +41,13 @@ type alias Model =
     { currentPage : Page
     , currentDatabase : Maybe String
     , databases : Array.Array Database
+    , tables : List Table
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model HomePage Maybe.Nothing Array.empty, Cmd.none )
+    ( Model HomePage Maybe.Nothing Array.empty [], Cmd.none )
 
 
 
@@ -56,7 +60,7 @@ type Msg
     | GotDatabases (Result Http.Error (Array.Array Database))
     | ClickDatabasePage String
     | GoDatabasePage
-    | GotTables (Result Http.Error (Array.Array Database))
+    | GotTables (Result Http.Error (List Table))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -75,10 +79,10 @@ update msg model =
             ( model, Cmd.none )
 
         ClickDatabasePage databaseName ->
-            ( { model | currentDatabase = Just databaseName }, getTables )
+            ( { model | currentDatabase = Just databaseName }, getTables model )
 
         GotTables (Ok tables) ->
-            ( { model | currentPage = DatabasePage }, Cmd.none )
+            ( { model | tables = tables, currentPage = DatabasePage }, Cmd.none )
 
         GotTables (Err e) ->
             ( model, Cmd.none )
@@ -161,7 +165,11 @@ renderDatabasePage model =
 
         Just currentDatabase ->
             div []
-                [ text "Database ", text currentDatabase ]
+                [ text "Database ", text currentDatabase,
+                  model.tables
+                      |> List.map (\table -> li [] [ text table.name ])
+                      |> ul []
+                ]
 
 
 renderTablePage : Model -> Html Msg
@@ -206,12 +214,27 @@ databaseDecoder =
         (Decode.at [ "is_postgres" ] Decode.bool)
 
 
-getTables : Cmd Msg
-getTables =
-    let
-        url =
-            "http://localhost:8001/djpg/api/databases"
+getTables : Model -> Cmd Msg
+getTables model =
+    case model.currentDatabase of
+        Nothing ->
+            Cmd.none
 
-        -- TODO
-    in
-    Http.send GotTables (Http.get url databasesDecoder)
+        Just currentDatabase ->
+            let
+                url =
+                    "http://localhost:8001/djpg/api/database/" ++ currentDatabase ++ "/tables/"
+            in
+            Http.send GotTables (Http.get url tablesDecoder)
+
+
+tablesDecoder : Decode.Decoder (List Table)
+tablesDecoder =
+    Decode.at [ "tables" ] (Decode.list tableDecoder)
+
+
+tableDecoder : Decode.Decoder Table
+tableDecoder =
+    Decode.map
+        Table
+        (Decode.at [ "table_name" ] Decode.string)

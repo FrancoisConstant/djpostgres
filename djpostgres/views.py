@@ -1,4 +1,6 @@
+from django import db
 from django.conf import settings
+from django.db.transaction import get_connection
 from django.http.response import JsonResponse
 
 
@@ -21,3 +23,28 @@ def databases(request):
             ]
         }
     )
+
+
+def tables(request, database):
+
+    conn = get_connection(using=database)
+    cursor = conn.cursor()
+    cursor.execute("""SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';""")
+
+    #print(__dictfetchall(cursor))
+    #print(cursor.fetchall())
+
+    return JsonResponse(
+        data={
+            'tables': __dictfetchall(cursor)
+        }
+    )
+
+
+def __dictfetchall(cursor):
+    # Returns all rows from a cursor as a dict
+    desc = cursor.description
+    return [
+        dict(zip([col[0] for col in desc], row))
+        for row in cursor.fetchall()
+    ]

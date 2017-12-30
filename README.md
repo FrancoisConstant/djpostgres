@@ -1,15 +1,14 @@
 # djpostgres
 
-WIP - barely started.
+WIP - barely started - learning ELM basically
 
 ## TODO:
 
-* list DBs
-* list tables
 * list record with pagination
 * run custom SQL
 * secure (via setting + login?)
 * pip versioning
+* style
 * README
 
 
