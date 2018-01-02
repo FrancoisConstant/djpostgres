@@ -1,0 +1,78 @@
+<!doctype html>
+{% load compress static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DjPostgres</title>
+    <link type="text/css" rel="stylesheet" href="{% static "djpostgres/pure_css/pure.css" %}" charset="utf-8">
+    {% compress css %}
+      <link type="text/x-sass" rel="stylesheet" href="{% static "djpostgres/css/djpostgres.scss" %}" charset="utf-8">
+    {% endcompress %}
+    <!--[if lte IE 8]><link rel="stylesheet" href="{% static "djpostgres/pure_css/grids-responsive-old-ie-min.css" %}"><![endif]-->
+    <!--[if gt IE 8]><!--><link rel="stylesheet" href="{% static "djpostgres/pure_css/grids-responsive-min.css" %}"><!--<![endif]-->
+  </head>
+  <body>
+    {# TODO: render ELM code below #}
+    {# Current HTML only to bootstrap sCSS #}
+    <header>
+      <h1><a href="https://github.com/FrancoisConstant/djpostgres" target="_blank">DjPostgres</a></h1>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li class="active"><a href="/">Databases</a></li>
+          <li><a href="/">Users</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="breadcrumb">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/">Databases</a></li>
+        <li><a href="/">default</a></li>
+        <li>misago_threads_poll</li>
+      </ul>
+    </div>
+
+    <div class="main">
+      <ul class="tabs">
+        <li class="active">
+          <a href="">Browse</a>
+        </li>
+        <li>
+          <a href="">Structure</a>
+        </li>
+      </ul>
+      <div class="main-content">
+        <table class="pure-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="pure-table-odd">
+              <td>1</td>
+              <td>Test 1</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Test 2</td>
+            </tr>
+            <tr class="pure-table-odd">
+              <td>3</td>
+              <td>Test 3</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Test 4</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <footer></footer>
+  </body>
+</html>

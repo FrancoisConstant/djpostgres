@@ -1,0 +1,43 @@
+.breadcrumb {
+  margin-top: 44px;
+  padding-bottom: 11px;
+  position: relative;
+
+  &:after {
+    content: " ";
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 7px;
+    width: 24px;
+    background-color: $brand-color;
+  }
+
+  ul {
+    li {
+      display: inline-block;
+      margin-left: 8px;
+      color: $text-color;
+
+      &:before {
+        content: "///";
+        margin-right: 8px;
+      }
+
+      &:first-child {
+        margin-left: 0;
+        &:before {
+          content: "";
+          margin-right: 0;
+        }
+      }
+
+      a {
+        color: $text-color;
+        text-decoration: none;
+        &:hover {
+          color: $brand-color;
+        }
+      }
+    }
+  }
+}

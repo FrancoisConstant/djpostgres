@@ -1,7 +1,11 @@
-from django import db
 from django.conf import settings
 from django.db.transaction import get_connection
 from django.http.response import JsonResponse
+from django.shortcuts import render
+
+
+def index(request):
+    return render(request, "djpostgres/index.html", {})
 
 
 def databases(request):

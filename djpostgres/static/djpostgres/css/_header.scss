@@ -1,0 +1,61 @@
+header {
+  $logo-width: 140px;
+  $logo-height: 22px;
+
+  h1 {
+    display: inline-block;
+    width: $logo-width; height: $logo-height;
+    margin-top: 22px;
+    font-size: 0;
+
+    a {
+      display: inline-block;
+      background-image: url($images-path + 'dj_postgres_logo.png');
+      background-size: $logo-width $logo-height;
+      width: $logo-width; height: $logo-height;
+      text-indent: -2000em;
+    }
+  }
+
+  nav {
+    float: right;
+
+    ul {
+      margin: 20px 0 0 0;
+
+      li {
+        display: inline-block;
+        margin-left: 22px;
+
+        &:first-of-type {
+          margin-left: 0;
+        }
+
+        a {
+          text-decoration: none;
+          font-size: 13px;
+          font-weight: 400;
+          font-family: $menu-font;
+          letter-spacing: 0.1em;
+          color: white;
+        }
+
+        &:hover {
+          a {
+            color: $brand-color;
+          }
+        }
+        &.active {
+          a {
+            color: $brand-color;
+          }
+        }
+        &.active:hover {
+          a {
+            color: black;
+          }
+        }
+      }
+    }
+  }
+}

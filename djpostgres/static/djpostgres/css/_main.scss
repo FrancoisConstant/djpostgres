@@ -1,0 +1,63 @@
+.main {
+  margin-top: 44px;
+
+  ul.tabs {
+    margin-left: 20px;
+
+    li {
+      display: inline-block;
+      padding: 6px 14px;
+
+      a {
+        font-size: 13px;
+        color: white;
+        text-decoration: none;
+        &:hover {
+          color: $brand-color;
+        }
+      }
+      &.active {
+        background-color: $brand-color;
+
+        a {
+          &:hover {
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .main-content {
+    background-color: $data-background;
+
+    table.pure-table {
+      thead {
+        background-color: #2C4257;
+
+        tr {
+          background-color: transparent;
+
+          th {
+            background-color: transparent;
+
+          }
+        }
+      }
+      tbody {
+        tr {
+          background-color: transparent;
+
+          &.pure-table-odd {
+            background-color: #1E2C3A;
+          }
+
+          td {
+            background-color: transparent;
+          }
+        }
+      }
+    }
+
+  }
+}

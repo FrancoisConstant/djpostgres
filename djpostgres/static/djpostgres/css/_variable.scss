@@ -1,0 +1,32 @@
+$static-path: '/static/djpostgres/';
+$images-path: $static-path + 'images/';
+
+//////////////
+// Breakpoints
+// purecss reference
+//sm 	@media screen and (min-width: 35.5em) 	≥ 568px 	.pure-u-sm-*
+//md 	@media screen and (min-width: 48em) 	≥ 768px 	.pure-u-md-*
+//lg 	@media screen and (min-width: 64em) 	≥ 1024px 	.pure-u-lg-*
+//xl 	@media screen and (min-width: 80em) 	≥ 1280px 	.pure-u-xl-*
+$breakpoints: (sm: 568px,
+               md: 768px,
+               lg: 1024px,
+               xl: 1280px) !default;
+
+//////////
+// Colours
+$background-color: #212830;
+
+$brand-color: #CE4444; // Red
+
+$text-color: #DDDDDD; // light grey
+
+$link-color: $brand-color;
+$hover-color: #CB332F; // dark red
+
+$data-background: #10161C; // dark blue
+
+////////
+// FONTS
+$body-font: Arial, Geneva, sans-serif 'Times New Roman', 'Times', serif;
+$menu-font: 'Shree Devanagari 714', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
