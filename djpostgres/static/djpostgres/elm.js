@@ -9176,9 +9176,25 @@ var _user$project$DjPostgres$Model = F4(
 	function (a, b, c, d) {
 		return {currentPage: a, currentDatabase: b, databases: c, tables: d};
 	});
+var _user$project$DjPostgres$UserPage = {ctor: 'UserPage'};
 var _user$project$DjPostgres$TablePage = {ctor: 'TablePage'};
 var _user$project$DjPostgres$DatabasePage = {ctor: 'DatabasePage'};
 var _user$project$DjPostgres$SelectDatabasePage = {ctor: 'SelectDatabasePage'};
+var _user$project$DjPostgres$getLinkClass = F2(
+	function (model, page) {
+		return _elm_lang$core$Native_Utils.eq(page, model.currentPage) ? 'active' : ((_elm_lang$core$Native_Utils.eq(page, _user$project$DjPostgres$SelectDatabasePage) && A2(
+			_elm_lang$core$List$member,
+			model.currentPage,
+			{
+				ctor: '::',
+				_0: _user$project$DjPostgres$DatabasePage,
+				_1: {
+					ctor: '::',
+					_0: _user$project$DjPostgres$TablePage,
+					_1: {ctor: '[]'}
+				}
+			})) ? 'active' : '');
+	});
 var _user$project$DjPostgres$HomePage = {ctor: 'HomePage'};
 var _user$project$DjPostgres$init = {
 	ctor: '_Tuple2',
@@ -9295,8 +9311,10 @@ var _user$project$DjPostgres$renderPage = function (model) {
 				return _user$project$DjPostgres$renderSelectDatabasePage(model);
 			case 'DatabasePage':
 				return _user$project$DjPostgres$renderDatabasePage(model);
-			default:
+			case 'TablePage':
 				return _user$project$DjPostgres$renderTablePage(model);
+			default:
+				return _user$project$DjPostgres$renderHomePage(model);
 		}
 	}();
 	return pageContent;
@@ -9315,6 +9333,14 @@ var _user$project$DjPostgres$update = F2(
 	function (msg, model) {
 		var _p3 = msg;
 		switch (_p3.ctor) {
+			case 'ClickHomePage':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{currentPage: _user$project$DjPostgres$HomePage}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'ClickSelectDatabasePage':
 				return {ctor: '_Tuple2', _0: model, _1: _user$project$DjPostgres$getDatabases};
 			case 'GoSelectDatabasePage':
@@ -9359,6 +9385,7 @@ var _user$project$DjPostgres$update = F2(
 	});
 var _user$project$DjPostgres$GoSelectDatabasePage = {ctor: 'GoSelectDatabasePage'};
 var _user$project$DjPostgres$ClickSelectDatabasePage = {ctor: 'ClickSelectDatabasePage'};
+var _user$project$DjPostgres$ClickHomePage = {ctor: 'ClickHomePage'};
 var _user$project$DjPostgres$renderHeader = function (model) {
 	return A2(
 		_elm_lang$html$Html$header,
@@ -9402,15 +9429,24 @@ var _user$project$DjPostgres$renderHeader = function (model) {
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$li,
-									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class(
+											A2(_user$project$DjPostgres$getLinkClass, model, _user$project$DjPostgres$HomePage)),
+										_1: {ctor: '[]'}
+									},
 									{
 										ctor: '::',
 										_0: A2(
 											_elm_lang$html$Html$a,
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$href('/'),
-												_1: {ctor: '[]'}
+												_0: _elm_lang$html$Html_Attributes$href('#homepage'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickHomePage),
+													_1: {ctor: '[]'}
+												}
 											},
 											{
 												ctor: '::',
@@ -9425,7 +9461,8 @@ var _user$project$DjPostgres$renderHeader = function (model) {
 										_elm_lang$html$Html$li,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('active'),
+											_0: _elm_lang$html$Html_Attributes$class(
+												A2(_user$project$DjPostgres$getLinkClass, model, _user$project$DjPostgres$SelectDatabasePage)),
 											_1: {ctor: '[]'}
 										},
 										{
@@ -9452,14 +9489,19 @@ var _user$project$DjPostgres$renderHeader = function (model) {
 										ctor: '::',
 										_0: A2(
 											_elm_lang$html$Html$li,
-											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class(
+													A2(_user$project$DjPostgres$getLinkClass, model, _user$project$DjPostgres$UserPage)),
+												_1: {ctor: '[]'}
+											},
 											{
 												ctor: '::',
 												_0: A2(
 													_elm_lang$html$Html$a,
 													{
 														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$href('/users-todo'),
+														_0: _elm_lang$html$Html_Attributes$href('#todo'),
 														_1: {ctor: '[]'}
 													},
 													{
@@ -9503,8 +9545,12 @@ var _user$project$DjPostgres$renderBreadcrumb = function (model) {
 								_elm_lang$html$Html$a,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href('/todo'),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$href('#homepage'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickHomePage),
+										_1: {ctor: '[]'}
+									}
 								},
 								{
 									ctor: '::',

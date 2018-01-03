@@ -22,6 +22,7 @@ type Page
     | SelectDatabasePage
     | DatabasePage
     | TablePage
+    | UserPage
 
 
 type alias Database =
@@ -57,7 +58,8 @@ init =
 
 
 type Msg
-    = ClickSelectDatabasePage
+    = ClickHomePage
+    | ClickSelectDatabasePage
     | GoSelectDatabasePage
     | GotDatabases (Result Http.Error (Array.Array Database))
     | ClickDatabasePage String
@@ -68,6 +70,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ClickHomePage ->
+            ( { model | currentPage = HomePage }, Cmd.none )
+
         ClickSelectDatabasePage ->
             ( model, getDatabases )
 
@@ -115,18 +120,28 @@ renderHeader model =
             ]
         , nav []
             [ ul []
-                [ li []
-                    [ a [ href "/" ] [ text "Home" ]
+                [ li [ class (getLinkClass model HomePage) ]
+                    [ a [ href "#homepage", onClick ClickHomePage ] [ text "Home" ]
                     ]
-                , li [ class "active" ]
+                , li [ class (getLinkClass model SelectDatabasePage) ]
                     [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
                     ]
-                , li []
-                    [ a [ href "/users-todo" ] [ text "Users" ]
+                , li [ class (getLinkClass model UserPage) ]
+                    [ a [ href "#todo" ] [ text "Users" ]
                     ]
                 ]
             ]
         ]
+
+
+getLinkClass : Model -> Page -> String
+getLinkClass model page =
+    if page == model.currentPage then
+        "active"
+    else if page == SelectDatabasePage && List.member model.currentPage [ DatabasePage, TablePage ] then
+        "active"
+    else
+        ""
 
 
 renderBreadcrumb : Model -> Html Msg
@@ -134,7 +149,7 @@ renderBreadcrumb model =
     div [ class "breadcrumb" ]
         [ ul []
             [ li []
-                [ a [ href "/todo" ] [ text "Home" ]
+                [ a [ href "#homepage", onClick ClickHomePage ] [ text "Home" ]
                 ]
             , li []
                 [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
@@ -163,6 +178,9 @@ renderPage model =
 
                 TablePage ->
                     renderTablePage model
+
+                UserPage ->
+                    renderHomePage model
     in
     pageContent
 
