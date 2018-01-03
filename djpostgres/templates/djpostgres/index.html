@@ -13,39 +13,13 @@
     <!--[if gt IE 8]><!--><link rel="stylesheet" href="{% static "djpostgres/pure_css/grids-responsive-min.css" %}"><!--<![endif]-->
   </head>
   <body>
+    <div id="elm"></div>
+    <script src="/static/djpostgres/elm.js"></script>
+    <script type="text/javascript">Elm.DjPostgres.embed(document.querySelector("#elm"));</script>
+  </body>
+</html>
+ {% comment %}
     {# TODO: render ELM code below #}
-    {# Current HTML only to bootstrap sCSS #}
-    <header>
-      <h1><a href="https://github.com/FrancoisConstant/djpostgres" target="_blank">DjPostgres</a></h1>
-      <nav>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li class="active"><a href="/">Databases</a></li>
-          <li><a href="/">Users</a></li>
-        </ul>
-      </nav>
-    </header>
-
-    <div class="breadcrumb">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/">Databases</a></li>
-        <li><a href="/">default</a></li>
-        <li>misago_threads_poll</li>
-      </ul>
-    </div>
-
-    <div class="main">
-      <p>Welcome to djPostgres. Please select a database:</p>
-      <ul>
-        <li><button class="pure-button">default database</button></li>
-        <li><button class="pure-button">secondary database</button></li>
-        <li><button class="pure-button button-success">success</button></li>
-        <li><button class="pure-button button-warning">warning</button></li>
-        <li><button class="pure-button button-danger">danger</button></li>
-      </ul>
-    </div>
-
     <div class="main">
       <ul class="tabs">
         <li class="active">
@@ -84,5 +58,4 @@
         </table>
       </div>
     </div>
-  </body>
-</html>
+    {% endcomment %}

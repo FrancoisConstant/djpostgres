@@ -2,6 +2,7 @@ module DjPostgres exposing (..)
 
 import Array
 import Html exposing (..)
+import Html.Attributes exposing (class, href, target)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
@@ -99,9 +100,50 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "DJ Postgres" ]
-        , renderMenu model
+        [ renderHeader model
+        , renderBreadcrumb model
         , renderPage model
+        ]
+
+
+renderHeader : Model -> Html Msg
+renderHeader model =
+    header []
+        [ h1 []
+            [ a [ href "https://github.com/FrancoisConstant/djpostgres", target "_blank" ]
+                [ text "djPostgres" ]
+            ]
+        , nav []
+            [ ul []
+                [ li []
+                    [ a [ href "/" ] [ text "Home" ]
+                    ]
+                , li [ class "active" ]
+                    [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
+                    ]
+                , li []
+                    [ a [ href "/users-todo" ] [ text "Users" ]
+                    ]
+                ]
+            ]
+        ]
+
+
+renderBreadcrumb : Model -> Html Msg
+renderBreadcrumb model =
+    div [ class "breadcrumb" ]
+        [ ul []
+            [ li []
+                [ a [ href "/todo" ] [ text "Home" ]
+                ]
+            , li []
+                [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
+                ]
+            , li []
+                [ a [ href "/todo" ] [ text "default" ]
+                ]
+            , li [] [ text "some_table" ]
+            ]
         ]
 
 
@@ -125,23 +167,16 @@ renderPage model =
     pageContent
 
 
-renderMenu : Model -> Html Msg
-renderMenu model =
-    div []
-        [ button [ onClick ClickSelectDatabasePage ] [ text "Select Database" ]
-        ]
-
-
 renderHomePage : Model -> Html Msg
 renderHomePage model =
-    div []
-        [ text "Welcome" ]
+    div [ class "main" ]
+        [ p [] [ text "Welcome to djPostgres" ] ]
 
 
 renderSelectDatabasePage : Model -> Html Msg
 renderSelectDatabasePage model =
-    div []
-        [ text "Select Database"
+    div [ class "main" ]
+        [ p [] [ text "Select Database:" ]
         , model.databases
             |> Array.map renderDatabaseLink
             |> Array.toList
@@ -152,9 +187,8 @@ renderSelectDatabasePage model =
 renderDatabaseLink : Database -> Html Msg
 renderDatabaseLink database =
     li []
-        [ button [ onClick (ClickDatabasePage database.djangoName) ]
-            [ text <| "#" ++ database.actualName ]
-        , text database.djangoName
+        [ button [ onClick (ClickDatabasePage database.djangoName), class "pure-button database-button" ]
+            [ text database.djangoName, br [] [], span [] [ text database.actualName ] ]
         ]
 
 
@@ -197,7 +231,7 @@ getDatabases : Cmd Msg
 getDatabases =
     let
         url =
-            "http://localhost:8001/djpg/api/databases"
+            "http://localhost:8000/djpg/api/databases"
     in
     Http.send GotDatabases (Http.get url databasesDecoder)
 
@@ -225,7 +259,7 @@ getTables model =
         Just currentDatabase ->
             let
                 url =
-                    "http://localhost:8001/djpg/api/database/" ++ currentDatabase ++ "/tables/"
+                    "http://localhost:8000/djpg/api/database/" ++ currentDatabase ++ "/tables/"
             in
             Http.send GotTables (Http.get url tablesDecoder)
 
