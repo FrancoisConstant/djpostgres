@@ -26,7 +26,7 @@ h3 {
 
 p {
   margin-top: 10px;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.6;
 }
 
@@ -44,4 +44,33 @@ ul {
   li {
     list-style: none;
   }
+}
+
+.pure-button {
+  margin: 6px 0 0 0;
+  background: rgb(66, 184, 221); /* this is a light blue */
+  color: white;
+  border-radius: 0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+
+  &.button-success {
+    background: rgb(28, 184, 65); /* this is a green */
+  }
+
+  &.button-danger {
+    background: rgb(202, 60, 60); /* this is a maroon */
+  }
+
+  &.button-warning {
+    background: rgb(223, 117, 20); /* this is an orange */
+  }
+  
+  &:hover, &:focus{
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#1a000000', GradientType=0);
+    background-image:-webkit-gradient(linear,0 0,0 100%,from(transparent),color-stop(80%,rgba(0,0,0,.25)),to(rgba(0,0,0,.1)));
+    background-image:-webkit-linear-gradient(transparent,rgba(0,0,0,.25) 80%,rgba(0,0,0,.1));
+    background-image:-moz-linear-gradient(top,rgba(0,0,0,.25) 0,rgba(0,0,0,.1));
+    background-image:-o-linear-gradient(transparent,rgba(0,0,0,.25) 80%,rgba(0,0,0,.1));
+    background-image:linear-gradient(transparent,rgba(0,0,0,.25) 80%,rgba(0,0,0,.1))}
+  
 }
