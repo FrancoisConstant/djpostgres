@@ -9051,27 +9051,6 @@ var _user$project$DjPostgres$getOddEvenString = function (index) {
 		A2(_elm_lang$core$Basics_ops['%'], index, 2),
 		0) ? 'odd' : 'even';
 };
-var _user$project$DjPostgres$renderHomePage = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('main'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$p,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Welcome to djPostgres'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
 var _user$project$DjPostgres$Database = F3(
 	function (a, b, c) {
 		return {djangoName: a, actualName: b, isPostgres: c};
@@ -9160,16 +9139,13 @@ var _user$project$DjPostgres$getLinkClass = F2(
 			})) ? 'active' : '');
 	});
 var _user$project$DjPostgres$HomePage = {ctor: 'HomePage'};
-var _user$project$DjPostgres$init = {
-	ctor: '_Tuple2',
-	_0: A4(
-		_user$project$DjPostgres$Model,
-		_user$project$DjPostgres$HomePage,
-		_elm_lang$core$Maybe$Nothing,
-		_elm_lang$core$Array$empty,
-		{ctor: '[]'}),
-	_1: _elm_lang$core$Platform_Cmd$none
-};
+var _user$project$DjPostgres$getInitialModel = A4(
+	_user$project$DjPostgres$Model,
+	_user$project$DjPostgres$HomePage,
+	_elm_lang$core$Maybe$Nothing,
+	_elm_lang$core$Array$empty,
+	{ctor: '[]'});
+var _user$project$DjPostgres$init = {ctor: '_Tuple2', _0: _user$project$DjPostgres$getInitialModel, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$DjPostgres$GotTable = function (a) {
 	return {ctor: 'GotTable', _0: a};
 };
@@ -9314,6 +9290,45 @@ var _user$project$DjPostgres$getTables = function (model) {
 var _user$project$DjPostgres$ClickDatabasePage = function (a) {
 	return {ctor: 'ClickDatabasePage', _0: a};
 };
+var _user$project$DjPostgres$renderBreadcrumbDatabase = function (model) {
+	var _p2 = model.currentDatabase;
+	if (_p2.ctor === 'Nothing') {
+		return _elm_lang$html$Html$text('');
+	} else {
+		var _p3 = _p2._0;
+		return _elm_lang$core$Native_Utils.eq(model.currentPage, _user$project$DjPostgres$DatabasePage) ? A2(
+			_elm_lang$html$Html$li,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(_p3),
+				_1: {ctor: '[]'}
+			}) : A2(
+			_elm_lang$html$Html$li,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href('#database'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$DjPostgres$ClickDatabasePage(_p3)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(_p3),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	}
+};
 var _user$project$DjPostgres$renderDatabaseLink = function (database) {
 	return A2(
 		_elm_lang$html$Html$li,
@@ -9387,10 +9402,172 @@ var _user$project$DjPostgres$renderSelectDatabasePage = function (model) {
 			}
 		});
 };
+var _user$project$DjPostgres$GotDatabases = function (a) {
+	return {ctor: 'GotDatabases', _0: a};
+};
+var _user$project$DjPostgres$getDatabases = function () {
+	var url = 'http://localhost:8000/djpg/api/databases';
+	return A2(
+		_elm_lang$http$Http$send,
+		_user$project$DjPostgres$GotDatabases,
+		A2(_elm_lang$http$Http$get, url, _user$project$DjPostgres$databasesDecoder));
+}();
+var _user$project$DjPostgres$update = F2(
+	function (msg, model) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
+			case 'ClickHomePage':
+				return {ctor: '_Tuple2', _0: _user$project$DjPostgres$getInitialModel, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'ClickSelectDatabasePage':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$DjPostgres$getDatabases};
+			case 'GoSelectDatabasePage':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'GotDatabases':
+				if (_p4._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{databases: _p4._0._0, currentPage: _user$project$DjPostgres$SelectDatabasePage}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'ClickDatabasePage':
+				var _p5 = _p4._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							currentDatabase: _elm_lang$core$Maybe$Just(_p5)
+						}),
+					_1: _user$project$DjPostgres$getTables(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								currentDatabase: _elm_lang$core$Maybe$Just(_p5)
+							}))
+				};
+			case 'GotTables':
+				if (_p4._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{tables: _p4._0._0, currentPage: _user$project$DjPostgres$DatabasePage}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'ClickTablePage':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			default:
+				if (_p4._0.ctor === 'Ok') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+		}
+	});
+var _user$project$DjPostgres$GoSelectDatabasePage = {ctor: 'GoSelectDatabasePage'};
+var _user$project$DjPostgres$ClickSelectDatabasePage = {ctor: 'ClickSelectDatabasePage'};
+var _user$project$DjPostgres$renderBreadcrumbDatabases = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.currentPage, _user$project$DjPostgres$SelectDatabasePage) ? A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Databases'),
+			_1: {ctor: '[]'}
+		}) : ((!_elm_lang$core$Native_Utils.eq(model.currentDatabase, _elm_lang$core$Maybe$Nothing)) ? A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href('#databases'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickSelectDatabasePage),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Databases'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}) : _elm_lang$html$Html$text(''));
+};
+var _user$project$DjPostgres$renderHomePage = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('main'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Welcome to djPostgres'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$br,
+					{ctor: '[]'},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$p,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('To get started: '),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$a,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickSelectDatabasePage),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('select a database'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('.'),
+									_1: {ctor: '[]'}
+								}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _user$project$DjPostgres$renderPage = function (model) {
 	var pageContent = function () {
-		var _p2 = model.currentPage;
-		switch (_p2.ctor) {
+		var _p6 = model.currentPage;
+		switch (_p6.ctor) {
 			case 'HomePage':
 				return _user$project$DjPostgres$renderHomePage(model);
 			case 'SelectDatabasePage':
@@ -9405,84 +9582,6 @@ var _user$project$DjPostgres$renderPage = function (model) {
 	}();
 	return pageContent;
 };
-var _user$project$DjPostgres$GotDatabases = function (a) {
-	return {ctor: 'GotDatabases', _0: a};
-};
-var _user$project$DjPostgres$getDatabases = function () {
-	var url = 'http://localhost:8000/djpg/api/databases';
-	return A2(
-		_elm_lang$http$Http$send,
-		_user$project$DjPostgres$GotDatabases,
-		A2(_elm_lang$http$Http$get, url, _user$project$DjPostgres$databasesDecoder));
-}();
-var _user$project$DjPostgres$update = F2(
-	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
-			case 'ClickHomePage':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{currentPage: _user$project$DjPostgres$HomePage}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'ClickSelectDatabasePage':
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$DjPostgres$getDatabases};
-			case 'GoSelectDatabasePage':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			case 'GotDatabases':
-				if (_p3._0.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{databases: _p3._0._0, currentPage: _user$project$DjPostgres$SelectDatabasePage}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			case 'ClickDatabasePage':
-				var _p4 = _p3._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							currentDatabase: _elm_lang$core$Maybe$Just(_p4)
-						}),
-					_1: _user$project$DjPostgres$getTables(
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								currentDatabase: _elm_lang$core$Maybe$Just(_p4)
-							}))
-				};
-			case 'GotTables':
-				if (_p3._0.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{tables: _p3._0._0, currentPage: _user$project$DjPostgres$DatabasePage}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			case 'ClickTablePage':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			default:
-				if (_p3._0.ctor === 'Ok') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-		}
-	});
-var _user$project$DjPostgres$GoSelectDatabasePage = {ctor: 'GoSelectDatabasePage'};
-var _user$project$DjPostgres$ClickSelectDatabasePage = {ctor: 'ClickSelectDatabasePage'};
 var _user$project$DjPostgres$ClickHomePage = {ctor: 'ClickHomePage'};
 var _user$project$DjPostgres$renderHeader = function (model) {
 	return A2(
@@ -9619,6 +9718,38 @@ var _user$project$DjPostgres$renderHeader = function (model) {
 			}
 		});
 };
+var _user$project$DjPostgres$renderBreadcrumbHome = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.currentPage, _user$project$DjPostgres$HomePage) ? A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Home'),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href('#homepage'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickHomePage),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Home'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$DjPostgres$renderBreadcrumb = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9634,87 +9765,14 @@ var _user$project$DjPostgres$renderBreadcrumb = function (model) {
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$li,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$a,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href('#homepage'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickHomePage),
-										_1: {ctor: '[]'}
-									}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Home'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}),
+					_0: _user$project$DjPostgres$renderBreadcrumbHome(model),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$li,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$a,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$href('#databases'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_user$project$DjPostgres$ClickSelectDatabasePage),
-											_1: {ctor: '[]'}
-										}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Databases'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}),
+						_0: _user$project$DjPostgres$renderBreadcrumbDatabases(model),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$li,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$a,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$href('/todo'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('default'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$li,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('some_table'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}
+							_0: _user$project$DjPostgres$renderBreadcrumbDatabase(model),
+							_1: {ctor: '[]'}
 						}
 					}
 				}),

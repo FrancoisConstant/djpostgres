@@ -50,7 +50,13 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model HomePage Maybe.Nothing Array.empty [], Cmd.none )
+    ( getInitialModel, Cmd.none )
+
+
+getInitialModel : Model
+getInitialModel =
+    -- User is on the Homepage and all the variables are null / empty
+    Model HomePage Maybe.Nothing Array.empty []
 
 
 
@@ -72,7 +78,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickHomePage ->
-            ( { model | currentPage = HomePage }, Cmd.none )
+            ( getInitialModel, Cmd.none )
 
         ClickSelectDatabasePage ->
             ( model, getDatabases )
@@ -155,18 +161,47 @@ renderBreadcrumb : Model -> Html Msg
 renderBreadcrumb model =
     div [ class "breadcrumb" ]
         [ ul []
-            [ li []
-                [ a [ href "#homepage", onClick ClickHomePage ] [ text "Home" ]
-                ]
-            , li []
-                [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
-                ]
-            , li []
-                [ a [ href "/todo" ] [ text "default" ]
-                ]
-            , li [] [ text "some_table" ]
+            [ renderBreadcrumbHome model
+            , renderBreadcrumbDatabases model
+            , renderBreadcrumbDatabase model
+
+            --, li [] [ text "some_table" ]
             ]
         ]
+
+
+renderBreadcrumbHome : Model -> Html Msg
+renderBreadcrumbHome model =
+    if model.currentPage == HomePage then
+        li [] [ text "Home" ]
+    else
+        li [] [ a [ href "#homepage", onClick ClickHomePage ] [ text "Home" ] ]
+
+
+renderBreadcrumbDatabases : Model -> Html Msg
+renderBreadcrumbDatabases model =
+    if model.currentPage == SelectDatabasePage then
+        li [] [ text "Databases" ]
+    else if model.currentDatabase /= Maybe.Nothing then
+        li []
+            [ a [ href "#databases", onClick ClickSelectDatabasePage ] [ text "Databases" ]
+            ]
+    else
+        text ""
+
+
+renderBreadcrumbDatabase : Model -> Html Msg
+renderBreadcrumbDatabase model =
+    case model.currentDatabase of
+        Nothing ->
+            text ""
+
+        Just currentDatabase ->
+            if model.currentPage == DatabasePage then
+                li [] [ text currentDatabase ]
+            else
+                li []
+                    [ a [ href "#database", onClick (ClickDatabasePage currentDatabase) ] [ text currentDatabase ] ]
 
 
 renderPage : Model -> Html Msg
@@ -195,7 +230,10 @@ renderPage model =
 renderHomePage : Model -> Html Msg
 renderHomePage model =
     div [ class "main" ]
-        [ p [] [ text "Welcome to djPostgres" ] ]
+        [ p [] [ text "Welcome to djPostgres" ]
+        , br [] []
+        , p [] [ text "To get started: ", a [ onClick ClickSelectDatabasePage ] [ text "select a database" ], text "." ]
+        ]
 
 
 renderSelectDatabasePage : Model -> Html Msg
