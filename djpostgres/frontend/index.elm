@@ -32,12 +32,12 @@ type alias Database =
     }
 
 
-type alias Table =
-    { name : String }
-
-
 type alias DatabasesListing =
     { databases : List Database }
+
+
+type alias Table =
+    { name : String }
 
 
 type alias Model =
@@ -86,7 +86,7 @@ update msg model =
             ( model, Cmd.none )
 
         ClickDatabasePage databaseName ->
-            ( { model | currentDatabase = Just databaseName }, getTables model )
+            ( { model | currentDatabase = Just databaseName }, getTables { model | currentDatabase = Just databaseName } )
 
         GotTables (Ok tables) ->
             ( { model | tables = tables, currentPage = DatabasePage }, Cmd.none )
