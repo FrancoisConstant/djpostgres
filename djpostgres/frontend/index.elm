@@ -63,8 +63,9 @@ type Msg
     | GoSelectDatabasePage
     | GotDatabases (Result Http.Error (Array.Array Database))
     | ClickDatabasePage String
-    | GoDatabasePage
     | GotTables (Result Http.Error (List Table))
+    | ClickTablePage String
+    | GotTable (Result Http.Error (List List))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -94,7 +95,13 @@ update msg model =
         GotTables (Err e) ->
             ( model, Cmd.none )
 
-        GoDatabasePage ->
+        ClickTablePage tableName ->
+            ( model, Cmd.none )
+
+        GotTable (Ok listing) ->
+            ( model, Cmd.none )
+
+        GotTable (Err e) ->
             ( model, Cmd.none )
 
 
@@ -217,13 +224,31 @@ renderDatabasePage model =
             div [] []
 
         Just currentDatabase ->
-            div []
-                [ text "Database "
-                , text currentDatabase
-                , model.tables
-                    |> List.map (\table -> li [] [ text table.name ])
-                    |> ul []
+            div [ class "main" ]
+                [ ul [ class "tabs" ]
+                    [ li [ class "active" ] [ text "Select table" ]
+                    ]
+                , div [ class "main-content" ]
+                    [ table [ class "pure-table" ]
+                        [ model.tables
+                            |> List.indexedMap (\index dbTable -> tr [ class (getOddEvenString index) ] [ td [] [ renderTableLink dbTable ] ])
+                            |> tbody []
+                        ]
+                    ]
                 ]
+
+
+getOddEvenString : Int -> String
+getOddEvenString index =
+    if index % 2 == 0 then
+        "odd"
+    else
+        "even"
+
+
+renderTableLink : Table -> Html Msg
+renderTableLink table =
+    a [ onClick (ClickTablePage table.name), href "#view-table" ] [ text table.name ]
 
 
 renderTablePage : Model -> Html Msg
