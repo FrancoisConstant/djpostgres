@@ -304,9 +304,9 @@ renderDatabasePage model =
 getOddEvenString : Int -> String
 getOddEvenString index =
     if index % 2 == 0 then
-        "odd"
-    else
         "even"
+    else
+        "odd"
 
 
 renderTableLink : Table -> Html Msg

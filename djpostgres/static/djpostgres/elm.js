@@ -9049,7 +9049,7 @@ var _user$project$DjPostgres$renderTablePage = function (model) {
 var _user$project$DjPostgres$getOddEvenString = function (index) {
 	return _elm_lang$core$Native_Utils.eq(
 		A2(_elm_lang$core$Basics_ops['%'], index, 2),
-		0) ? 'odd' : 'even';
+		0) ? 'even' : 'odd';
 };
 var _user$project$DjPostgres$renderBreadcrumbTable = function (model) {
 	var _p0 = model.currentTable;
