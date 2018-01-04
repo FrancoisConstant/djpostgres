@@ -43,6 +43,7 @@ type alias Table =
 type alias Model =
     { currentPage : Page
     , currentDatabase : Maybe String
+    , currentTable : Maybe String
     , databases : Array.Array Database
     , tables : List Table
     }
@@ -56,7 +57,7 @@ init =
 getInitialModel : Model
 getInitialModel =
     -- User is on the Homepage and all the variables are null / empty
-    Model HomePage Maybe.Nothing Array.empty []
+    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty []
 
 
 
@@ -84,7 +85,12 @@ update msg model =
             ( model, getDatabases )
 
         GotDatabases (Ok databases) ->
-            ( { model | databases = databases, currentPage = SelectDatabasePage }, Cmd.none )
+            ( { getInitialModel
+                | databases = databases
+                , currentPage = SelectDatabasePage
+              }
+            , Cmd.none
+            )
 
         GoSelectDatabasePage ->
             ( model, Cmd.none )
@@ -93,16 +99,26 @@ update msg model =
             ( model, Cmd.none )
 
         ClickDatabasePage databaseName ->
-            ( { model | currentDatabase = Just databaseName }, getTables { model | currentDatabase = Just databaseName } )
+            ( { getInitialModel
+                | currentDatabase = Just databaseName
+              }
+            , getTables { model | currentDatabase = Just databaseName }
+            )
 
         GotTables (Ok tables) ->
-            ( { model | tables = tables, currentPage = DatabasePage }, Cmd.none )
+            ( { getInitialModel
+                | currentDatabase = model.currentDatabase
+                , tables = tables
+                , currentPage = DatabasePage
+              }
+            , Cmd.none
+            )
 
         GotTables (Err e) ->
             ( model, Cmd.none )
 
         ClickTablePage tableName ->
-            ( model, Cmd.none )
+            ( { model | currentPage = TablePage, currentTable = Just tableName }, Cmd.none )
 
         GotTable (Ok listing) ->
             ( model, Cmd.none )
@@ -164,8 +180,7 @@ renderBreadcrumb model =
             [ renderBreadcrumbHome model
             , renderBreadcrumbDatabases model
             , renderBreadcrumbDatabase model
-
-            --, li [] [ text "some_table" ]
+            , renderBreadcrumbTable model
             ]
         ]
 
@@ -202,6 +217,16 @@ renderBreadcrumbDatabase model =
             else
                 li []
                     [ a [ href "#database", onClick (ClickDatabasePage currentDatabase) ] [ text currentDatabase ] ]
+
+
+renderBreadcrumbTable : Model -> Html Msg
+renderBreadcrumbTable model =
+    case model.currentTable of
+        Nothing ->
+            text ""
+
+        Just currentTable ->
+            li [] [ text currentTable ]
 
 
 renderPage : Model -> Html Msg
