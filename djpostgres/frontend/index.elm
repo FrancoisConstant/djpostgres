@@ -1,6 +1,7 @@
 module DjPostgres exposing (..)
 
 import Array
+import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (class, href, target)
 import Html.Events exposing (onClick)
@@ -40,12 +41,17 @@ type alias Table =
     { name : String }
 
 
+type alias QueryResult =
+    List (Dict String String)
+
+
 type alias Model =
     { currentPage : Page
     , currentDatabase : Maybe String
     , currentTable : Maybe String
     , databases : Array.Array Database
     , tables : List Table
+    , queryResult : QueryResult
     }
 
 
@@ -57,7 +63,7 @@ init =
 getInitialModel : Model
 getInitialModel =
     -- User is on the Homepage and all the variables are null / empty
-    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty []
+    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty [] []
 
 
 
@@ -72,7 +78,7 @@ type Msg
     | ClickDatabasePage String
     | GotTables (Result Http.Error (List Table))
     | ClickTablePage String
-    | GotTable (Result Http.Error (List List))
+    | GotTableContent (Result Http.Error QueryResult)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,12 +124,16 @@ update msg model =
             ( model, Cmd.none )
 
         ClickTablePage tableName ->
-            ( { model | currentPage = TablePage, currentTable = Just tableName }, Cmd.none )
+            let
+                new_model =
+                    { model | currentTable = Just tableName }
+            in
+            ( new_model, getTableContent new_model )
 
-        GotTable (Ok listing) ->
-            ( model, Cmd.none )
+        GotTableContent (Ok queryResult) ->
+            ( { model | currentPage = TablePage, queryResult = queryResult }, Cmd.none )
 
-        GotTable (Err e) ->
+        GotTableContent (Err e) ->
             ( model, Cmd.none )
 
 
@@ -257,7 +267,7 @@ renderHomePage model =
     div [ class "main" ]
         [ p [] [ text "Welcome to djPostgres" ]
         , br [] []
-        , p [] [ text "To get started: ", a [ onClick ClickSelectDatabasePage ] [ text "select a database" ], text "." ]
+        , p [] [ text "To get started: ", a [ onClick ClickSelectDatabasePage, href "#select-db" ] [ text "select a database" ], text "." ]
         ]
 
 
@@ -316,8 +326,26 @@ renderTableLink table =
 
 renderTablePage : Model -> Html Msg
 renderTablePage model =
-    div []
-        [ text "Table" ]
+    div [ class "main" ]
+        [ ul [ class "tabs" ]
+            [ li [ class "active" ] [ text "Results" ]
+            ]
+        , div [ class "main-content" ]
+            [ table [ class "pure-table" ]
+                []
+                --[ model.tables
+                --    |> List.indexedMap (\index res -> tr [ class (getOddEvenString index) ] [ td [] [ text res ] ])
+                --    |> tbody []
+                --]
+            ]
+        ]
+
+
+--renderResult : (Dict String String) -> Html Msg
+--renderResult queryResult =
+--    queryResult
+--        |> Dict.toList
+--        |> List.map (\res -> td [] [ text res ])
 
 
 
@@ -356,6 +384,11 @@ databaseDecoder =
         (Decode.at [ "is_postgres" ] Decode.bool)
 
 
+
+--
+--
+
+
 getTables : Model -> Cmd Msg
 getTables model =
     case model.currentDatabase of
@@ -380,3 +413,40 @@ tableDecoder =
     Decode.map
         Table
         (Decode.at [ "table_name" ] Decode.string)
+
+
+
+--
+--
+
+
+getTableContent : Model -> Cmd Msg
+getTableContent model =
+    case model.currentDatabase of
+        Nothing ->
+            Cmd.none
+
+        Just currentDatabase ->
+            case model.currentTable of
+                Nothing ->
+                    Cmd.none
+
+                Just currentTable ->
+                    let
+                        url =
+                            "http://localhost:8000/djpg/api/database/" ++ currentDatabase ++ "/tables/" ++ currentTable ++ "/0/5/"
+                    in
+                    Http.send GotTableContent (Http.get url tableContentDecoder)
+
+
+--tableContentDecoder : Decode.Decoder QueryResult
+--tableContentDecoder =
+--    Decode.at [ "result" ] <| (Decode.list (Decode.dict Decode.string))
+
+
+tableContentDecoder : Decode.Decoder QueryResult
+tableContentDecoder =
+    Decode.field "result" (Decode.list (Decode.dict Decode.string))
+--    Decode.field "result" <|
+--        Decode.list <|
+--            Decode.dict Decode.string
