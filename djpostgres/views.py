@@ -56,12 +56,12 @@ def table(request, database, table, offset, limit):
         )
     )
 
-    print(__dictfetchall(cursor))
-    #print(cursor.fetchall())
+    # print(cursor.description) # [Column(name='id', type_code=23, display_size=None, internal_size=4, precision=None, scale=None, null_ok=None), ...
 
     return JsonResponse(
         data={
-            'result': __dictfetchall(cursor)
+            'columns': [column.name for column in cursor.description],
+            'results': [[str(column) for column in record] for record in cursor.fetchall()]
         }
     )
 

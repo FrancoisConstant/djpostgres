@@ -9033,13 +9033,13 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
-var _user$project$DjPostgres$tableContentDecoder = A2(
-	_elm_lang$core$Json_Decode$field,
-	'result',
-	_elm_lang$core$Json_Decode$list(
-		_elm_lang$core$Json_Decode$dict(_elm_lang$core$Json_Decode$string)));
 var _user$project$DjPostgres$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$DjPostgres$getOddEvenString = function (index) {
+	return _elm_lang$core$Native_Utils.eq(
+		A2(_elm_lang$core$Basics_ops['%'], index, 2),
+		0) ? 'even' : 'odd';
 };
 var _user$project$DjPostgres$renderTablePage = function (model) {
 	return A2(
@@ -9092,17 +9092,71 @@ var _user$project$DjPostgres$renderTablePage = function (model) {
 								_0: _elm_lang$html$Html_Attributes$class('pure-table'),
 								_1: {ctor: '[]'}
 							},
-							{ctor: '[]'}),
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$thead,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$tr,
+											{ctor: '[]'},
+											A2(
+												_elm_lang$core$List$map,
+												function (column) {
+													return A2(
+														_elm_lang$html$Html$th,
+														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(column),
+															_1: {ctor: '[]'}
+														});
+												},
+												model.queryResult.columns)),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$tbody,
+										{ctor: '[]'},
+										A2(
+											_elm_lang$core$List$indexedMap,
+											F2(
+												function (index, record) {
+													return A2(
+														_elm_lang$html$Html$tr,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$class(
+																_user$project$DjPostgres$getOddEvenString(index)),
+															_1: {ctor: '[]'}
+														},
+														A2(
+															_elm_lang$core$List$map,
+															function (column) {
+																return A2(
+																	_elm_lang$html$Html$td,
+																	{ctor: '[]'},
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html$text(column),
+																		_1: {ctor: '[]'}
+																	});
+															},
+															record));
+												}),
+											model.queryResult.results)),
+									_1: {ctor: '[]'}
+								}
+							}),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
 			}
 		});
-};
-var _user$project$DjPostgres$getOddEvenString = function (index) {
-	return _elm_lang$core$Native_Utils.eq(
-		A2(_elm_lang$core$Basics_ops['%'], index, 2),
-		0) ? 'even' : 'odd';
 };
 var _user$project$DjPostgres$renderBreadcrumbTable = function (model) {
 	var _p0 = model.currentTable;
@@ -9118,6 +9172,10 @@ var _user$project$DjPostgres$renderBreadcrumbTable = function (model) {
 				_1: {ctor: '[]'}
 			});
 	}
+};
+var _user$project$DjPostgres$getEmptyQueryResult = {
+	columns: {ctor: '[]'},
+	results: {ctor: '[]'}
 };
 var _user$project$DjPostgres$Database = F3(
 	function (a, b, c) {
@@ -9183,6 +9241,22 @@ var _user$project$DjPostgres$tablesDecoder = A2(
 		_1: {ctor: '[]'}
 	},
 	_elm_lang$core$Json_Decode$list(_user$project$DjPostgres$tableDecoder));
+var _user$project$DjPostgres$QueryResult = F2(
+	function (a, b) {
+		return {columns: a, results: b};
+	});
+var _user$project$DjPostgres$tableContentDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$DjPostgres$QueryResult,
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'columns',
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'results',
+		_elm_lang$core$Json_Decode$list(
+			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))));
 var _user$project$DjPostgres$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {currentPage: a, currentDatabase: b, currentTable: c, databases: d, tables: e, queryResult: f};
@@ -9214,7 +9288,7 @@ var _user$project$DjPostgres$getInitialModel = A6(
 	_elm_lang$core$Maybe$Nothing,
 	_elm_lang$core$Array$empty,
 	{ctor: '[]'},
-	{ctor: '[]'});
+	_user$project$DjPostgres$getEmptyQueryResult);
 var _user$project$DjPostgres$init = {ctor: '_Tuple2', _0: _user$project$DjPostgres$getInitialModel, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$DjPostgres$GotTableContent = function (a) {
 	return {ctor: 'GotTableContent', _0: a};

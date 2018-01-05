@@ -42,7 +42,7 @@ type alias Table =
 
 
 type alias QueryResult =
-    List (Dict String String)
+    { columns : List String, results : List (List String) }
 
 
 type alias Model =
@@ -60,10 +60,15 @@ init =
     ( getInitialModel, Cmd.none )
 
 
+getEmptyQueryResult : QueryResult
+getEmptyQueryResult =
+    { columns = [], results = [] }
+
+
 getInitialModel : Model
 getInitialModel =
     -- User is on the Homepage and all the variables are null / empty
-    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty [] []
+    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty [] getEmptyQueryResult
 
 
 
@@ -332,20 +337,21 @@ renderTablePage model =
             ]
         , div [ class "main-content" ]
             [ table [ class "pure-table" ]
-                []
-                --[ model.tables
-                --    |> List.indexedMap (\index res -> tr [ class (getOddEvenString index) ] [ td [] [ text res ] ])
-                --    |> tbody []
-                --]
+                [ thead []
+                    [ tr [] (List.map (\column -> th [] [ text column ]) model.queryResult.columns)
+                    ]
+                , tbody []
+                    (List.indexedMap
+                        (\index record ->
+                            tr
+                                [ class (getOddEvenString index) ]
+                                (List.map (\column -> td [] [ text column ]) record)
+                        )
+                        model.queryResult.results
+                    )
+                ]
             ]
         ]
-
-
---renderResult : (Dict String String) -> Html Msg
---renderResult queryResult =
---    queryResult
---        |> Dict.toList
---        |> List.map (\res -> td [] [ text res ])
 
 
 
@@ -439,14 +445,9 @@ getTableContent model =
                     Http.send GotTableContent (Http.get url tableContentDecoder)
 
 
---tableContentDecoder : Decode.Decoder QueryResult
---tableContentDecoder =
---    Decode.at [ "result" ] <| (Decode.list (Decode.dict Decode.string))
-
-
 tableContentDecoder : Decode.Decoder QueryResult
 tableContentDecoder =
-    Decode.field "result" (Decode.list (Decode.dict Decode.string))
---    Decode.field "result" <|
---        Decode.list <|
---            Decode.dict Decode.string
+    Decode.map2
+        QueryResult
+        (Decode.field "columns" (Decode.list Decode.string))
+        (Decode.field "results" (Decode.list (Decode.list Decode.string)))
