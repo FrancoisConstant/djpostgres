@@ -9605,20 +9605,15 @@ var _user$project$DjPostgres$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'ClickDatabasePage':
-				var _p8 = _p7._0;
+				var newModel = _elm_lang$core$Native_Utils.update(
+					_user$project$DjPostgres$getInitialModel,
+					{
+						currentDatabase: _elm_lang$core$Maybe$Just(_p7._0)
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						_user$project$DjPostgres$getInitialModel,
-						{
-							currentDatabase: _elm_lang$core$Maybe$Just(_p8)
-						}),
-					_1: _user$project$DjPostgres$getTables(
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								currentDatabase: _elm_lang$core$Maybe$Just(_p8)
-							}))
+					_0: newModel,
+					_1: _user$project$DjPostgres$getTables(newModel)
 				};
 			case 'GotTables':
 				if (_p7._0.ctor === 'Ok') {
@@ -9633,15 +9628,15 @@ var _user$project$DjPostgres$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'ClickTablePage':
-				var new_model = _elm_lang$core$Native_Utils.update(
+				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
 						currentTable: _elm_lang$core$Maybe$Just(_p7._0)
 					});
 				return {
 					ctor: '_Tuple2',
-					_0: new_model,
-					_1: _user$project$DjPostgres$getTableContent(new_model)
+					_0: newModel,
+					_1: _user$project$DjPostgres$getTableContent(newModel)
 				};
 			default:
 				if (_p7._0.ctor === 'Ok') {
@@ -9755,8 +9750,8 @@ var _user$project$DjPostgres$renderHomePage = function (model) {
 };
 var _user$project$DjPostgres$renderPage = function (model) {
 	var pageContent = function () {
-		var _p9 = model.currentPage;
-		switch (_p9.ctor) {
+		var _p8 = model.currentPage;
+		switch (_p8.ctor) {
 			case 'HomePage':
 				return _user$project$DjPostgres$renderHomePage(model);
 			case 'SelectDatabasePage':

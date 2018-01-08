@@ -110,11 +110,11 @@ update msg model =
             ( model, Cmd.none )
 
         ClickDatabasePage databaseName ->
-            ( { getInitialModel
-                | currentDatabase = Just databaseName
-              }
-            , getTables { model | currentDatabase = Just databaseName }
-            )
+            let
+                newModel =
+                    { getInitialModel | currentDatabase = Just databaseName }
+            in
+            ( newModel, getTables newModel )
 
         GotTables (Ok tables) ->
             ( { getInitialModel
@@ -130,10 +130,10 @@ update msg model =
 
         ClickTablePage tableName ->
             let
-                new_model =
+                newModel =
                     { model | currentTable = Just tableName }
             in
-            ( new_model, getTableContent new_model )
+            ( newModel, getTableContent newModel )
 
         GotTableContent (Ok queryResult) ->
             ( { model | currentPage = TablePage, queryResult = queryResult }, Cmd.none )
