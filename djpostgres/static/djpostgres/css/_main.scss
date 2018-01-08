@@ -30,6 +30,8 @@
 
   .main-content {
     background-color: $data-background;
+    width: 100%;
+    overflow-x: scroll;
 
     table.pure-table {
       thead {
