@@ -30,7 +30,7 @@ def databases(request):
 
 
 def tables(request, database):
-
+    # TODO unit test
     conn = get_connection(using=database)
     cursor = conn.cursor()
     cursor.execute("""SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';""")
@@ -45,14 +45,23 @@ def tables(request, database):
     )
 
 
-def table(request, database, table, offset, limit):
+def table(request, database, table, page, per_page):
+    # TODO: unit test
     conn = get_connection(using=database)
     cursor = conn.cursor()
+
+    cursor.execute("""SELECT COUNT('id') FROM {table};""".format(table=table))
+    total_count = cursor.fetchone()[0]
+
+    offset = (page - 1) * per_page
+    to = min(offset + per_page, total_count)
+    count = to - offset
+
     cursor.execute(
         """SELECT * FROM {table} OFFSET {offset} LIMIT {limit};""".format(
             table=table,
             offset=offset,
-            limit=limit
+            limit=per_page
         )
     )
 
@@ -60,6 +69,12 @@ def table(request, database, table, offset, limit):
 
     return JsonResponse(
         data={
+            'page': page,
+            'total_page': 1 + (total_count // per_page),
+            'from': offset + 1,
+            'to': to,
+            'count': count,
+            'total_count': total_count,
             'columns': [column.name for column in cursor.description],
             'results': [[str(column) for column in record] for record in cursor.fetchall()]
         }

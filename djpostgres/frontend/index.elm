@@ -42,16 +42,26 @@ type alias Table =
 
 
 type alias QueryResult =
-    { columns : List String, results : List (List String) }
+    { columns : List String
+    , results : List (List String)
+    , page : Int
+    , totalPage : Int
+    , count : Int
+    , totalCount : Int
+    , from : Int
+    , to : Int
+    }
 
 
 type alias Model =
     { currentPage : Page
     , currentDatabase : Maybe String
     , currentTable : Maybe String
+    , currentQueryPage : Int
     , databases : Array.Array Database
     , tables : List Table
     , queryResult : QueryResult
+    , resultsPerPage : Int
     }
 
 
@@ -62,13 +72,13 @@ init =
 
 getEmptyQueryResult : QueryResult
 getEmptyQueryResult =
-    { columns = [], results = [] }
+    { columns = [], results = [], page = 1, totalPage = 1, count = 0, totalCount = 0, from = 1, to = 0 }
 
 
 getInitialModel : Model
 getInitialModel =
     -- User is on the Homepage and all the variables are null / empty
-    Model HomePage Maybe.Nothing Maybe.Nothing Array.empty [] getEmptyQueryResult
+    Model HomePage Maybe.Nothing Maybe.Nothing 1 Array.empty [] getEmptyQueryResult 50
 
 
 
@@ -82,7 +92,7 @@ type Msg
     | GotDatabases (Result Http.Error (Array.Array Database))
     | ClickDatabasePage String
     | GotTables (Result Http.Error (List Table))
-    | ClickTablePage String
+    | ClickTablePage ( String, Int ) -- tableName,
     | GotTableContent (Result Http.Error QueryResult)
 
 
@@ -128,10 +138,10 @@ update msg model =
         GotTables (Err e) ->
             ( model, Cmd.none )
 
-        ClickTablePage tableName ->
+        ClickTablePage ( tableName, currentQueryPage ) ->
             let
                 newModel =
-                    { model | currentTable = Just tableName }
+                    { model | currentTable = Just tableName, currentQueryPage = currentQueryPage }
             in
             ( newModel, getTableContent newModel )
 
@@ -326,19 +336,24 @@ getOddEvenString index =
 
 renderTableLink : Table -> Html Msg
 renderTableLink table =
-    a [ onClick (ClickTablePage table.name), href "#view-table" ] [ text table.name ]
+    a [ onClick (ClickTablePage ( table.name, 1 )), href "#view-table" ] [ text table.name ]
 
 
 renderTablePage : Model -> Html Msg
 renderTablePage model =
+    let
+        result =
+            model.queryResult
+    in
     div [ class "main" ]
         [ ul [ class "tabs" ]
-            [ li [ class "active" ] [ text "Results" ]
+            [ li [ class "active" ]
+                [ text (toString result.count ++ " results out of " ++ toString result.totalCount ++ " records (" ++ toString result.from ++ " to " ++ toString result.to ++ ").") ]
             ]
         , div [ class "main-content" ]
             [ table [ class "pure-table" ]
                 [ thead []
-                    [ tr [] (List.map (\column -> th [] [ text column ]) model.queryResult.columns)
+                    [ tr [] (List.map (\column -> th [] [ text column ]) result.columns)
                     ]
                 , tbody []
                     (List.indexedMap
@@ -347,12 +362,40 @@ renderTablePage model =
                                 [ class (getOddEvenString index) ]
                                 (List.map (\column -> td [] [ text column ]) record)
                         )
-                        model.queryResult.results
+                        result.results
                     )
                 ]
             ]
+        , renderPagination model
         ]
 
+
+renderPagination : Model -> Html Msg
+renderPagination model =
+    case model.currentTable of
+        Nothing ->
+            div [] []
+
+        Just currentTable ->
+            if model.queryResult.totalPage == 1 then
+                div [] []
+            else
+                ul [ class "pagination" ]
+                    (List.map
+                        (\pageIndex ->
+                            if pageIndex == model.currentQueryPage then
+                                li [ class "current" ]
+                                    [ text (toString pageIndex) ]
+                            else
+                                li []
+                                    [ a [ onClick (ClickTablePage ( currentTable, pageIndex )), href "#view-table" ]
+                                        [ text (toString pageIndex) ]
+                                    ]
+                        )
+                        (List.range 1 (min 20 model.queryResult.totalPage))
+                    )
+
+-- TODO handle pagination after 20 with good UX
 
 
 -- SUBSCRIPTIONS
@@ -440,14 +483,20 @@ getTableContent model =
                 Just currentTable ->
                     let
                         url =
-                            "http://localhost:8000/djpg/api/database/" ++ currentDatabase ++ "/tables/" ++ currentTable ++ "/0/5/"
+                            "http://localhost:8000/djpg/api/database/" ++ currentDatabase ++ "/tables/" ++ currentTable ++ "/" ++ toString model.currentQueryPage ++ "/" ++ toString model.resultsPerPage ++ "/"
                     in
                     Http.send GotTableContent (Http.get url tableContentDecoder)
 
 
 tableContentDecoder : Decode.Decoder QueryResult
 tableContentDecoder =
-    Decode.map2
+    Decode.map8
         QueryResult
         (Decode.field "columns" (Decode.list Decode.string))
         (Decode.field "results" (Decode.list (Decode.list Decode.string)))
+        (Decode.field "page" Decode.int)
+        (Decode.field "total_page" Decode.int)
+        (Decode.field "count" Decode.int)
+        (Decode.field "total_count" Decode.int)
+        (Decode.field "from" Decode.int)
+        (Decode.field "to" Decode.int)

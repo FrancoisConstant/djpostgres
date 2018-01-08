@@ -60,6 +60,42 @@
         }
       }
     }
+  }
 
+  ul.pagination {
+    margin-top: 10px;
+
+    li {
+      display: inline-block;
+      margin-left: 3px;
+
+      &:before {
+        content: "..";
+        margin-right: 3px;
+        font-size: 1em !important;
+        color: lightgrey !important;
+      }
+
+      &:first-child {
+        margin-left: 0;
+        &:before {
+          content: "";
+          margin-right: 0;
+        }
+      }
+
+      a {
+        color: white;
+        text-decoration: none;
+        &:hover {
+          color: $brand-color;
+        }
+      }
+
+      &.current {
+        color: $brand-color;
+        font-size: 2em;
+      }
+    }
   }
 }

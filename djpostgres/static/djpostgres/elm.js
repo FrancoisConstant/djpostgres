@@ -9041,123 +9041,6 @@ var _user$project$DjPostgres$getOddEvenString = function (index) {
 		A2(_elm_lang$core$Basics_ops['%'], index, 2),
 		0) ? 'even' : 'odd';
 };
-var _user$project$DjPostgres$renderTablePage = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('main'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$ul,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('tabs'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$li,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('active'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Results'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('main-content'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$table,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('pure-table'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$thead,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$tr,
-											{ctor: '[]'},
-											A2(
-												_elm_lang$core$List$map,
-												function (column) {
-													return A2(
-														_elm_lang$html$Html$th,
-														{ctor: '[]'},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text(column),
-															_1: {ctor: '[]'}
-														});
-												},
-												model.queryResult.columns)),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$tbody,
-										{ctor: '[]'},
-										A2(
-											_elm_lang$core$List$indexedMap,
-											F2(
-												function (index, record) {
-													return A2(
-														_elm_lang$html$Html$tr,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$class(
-																_user$project$DjPostgres$getOddEvenString(index)),
-															_1: {ctor: '[]'}
-														},
-														A2(
-															_elm_lang$core$List$map,
-															function (column) {
-																return A2(
-																	_elm_lang$html$Html$td,
-																	{ctor: '[]'},
-																	{
-																		ctor: '::',
-																		_0: _elm_lang$html$Html$text(column),
-																		_1: {ctor: '[]'}
-																	});
-															},
-															record));
-												}),
-											model.queryResult.results)),
-									_1: {ctor: '[]'}
-								}
-							}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
-};
 var _user$project$DjPostgres$renderBreadcrumbTable = function (model) {
 	var _p0 = model.currentTable;
 	if (_p0.ctor === 'Nothing') {
@@ -9175,7 +9058,13 @@ var _user$project$DjPostgres$renderBreadcrumbTable = function (model) {
 };
 var _user$project$DjPostgres$getEmptyQueryResult = {
 	columns: {ctor: '[]'},
-	results: {ctor: '[]'}
+	results: {ctor: '[]'},
+	page: 1,
+	totalPage: 1,
+	count: 0,
+	totalCount: 0,
+	from: 1,
+	to: 0
 };
 var _user$project$DjPostgres$Database = F3(
 	function (a, b, c) {
@@ -9241,12 +9130,12 @@ var _user$project$DjPostgres$tablesDecoder = A2(
 		_1: {ctor: '[]'}
 	},
 	_elm_lang$core$Json_Decode$list(_user$project$DjPostgres$tableDecoder));
-var _user$project$DjPostgres$QueryResult = F2(
-	function (a, b) {
-		return {columns: a, results: b};
+var _user$project$DjPostgres$QueryResult = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {columns: a, results: b, page: c, totalPage: d, count: e, totalCount: f, from: g, to: h};
 	});
-var _user$project$DjPostgres$tableContentDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _user$project$DjPostgres$tableContentDecoder = A9(
+	_elm_lang$core$Json_Decode$map8,
 	_user$project$DjPostgres$QueryResult,
 	A2(
 		_elm_lang$core$Json_Decode$field,
@@ -9256,10 +9145,16 @@ var _user$project$DjPostgres$tableContentDecoder = A3(
 		_elm_lang$core$Json_Decode$field,
 		'results',
 		_elm_lang$core$Json_Decode$list(
-			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))));
-var _user$project$DjPostgres$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {currentPage: a, currentDatabase: b, currentTable: c, databases: d, tables: e, queryResult: f};
+			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))),
+	A2(_elm_lang$core$Json_Decode$field, 'page', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'total_page', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'count', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'total_count', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'from', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'to', _elm_lang$core$Json_Decode$int));
+var _user$project$DjPostgres$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {currentPage: a, currentDatabase: b, currentTable: c, currentQueryPage: d, databases: e, tables: f, queryResult: g, resultsPerPage: h};
 	});
 var _user$project$DjPostgres$UserPage = {ctor: 'UserPage'};
 var _user$project$DjPostgres$TablePage = {ctor: 'TablePage'};
@@ -9281,14 +9176,16 @@ var _user$project$DjPostgres$getLinkClass = F2(
 			})) ? 'active' : '');
 	});
 var _user$project$DjPostgres$HomePage = {ctor: 'HomePage'};
-var _user$project$DjPostgres$getInitialModel = A6(
+var _user$project$DjPostgres$getInitialModel = A8(
 	_user$project$DjPostgres$Model,
 	_user$project$DjPostgres$HomePage,
 	_elm_lang$core$Maybe$Nothing,
 	_elm_lang$core$Maybe$Nothing,
+	1,
 	_elm_lang$core$Array$empty,
 	{ctor: '[]'},
-	_user$project$DjPostgres$getEmptyQueryResult);
+	_user$project$DjPostgres$getEmptyQueryResult,
+	50);
 var _user$project$DjPostgres$init = {ctor: '_Tuple2', _0: _user$project$DjPostgres$getInitialModel, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$DjPostgres$GotTableContent = function (a) {
 	return {ctor: 'GotTableContent', _0: a};
@@ -9311,7 +9208,22 @@ var _user$project$DjPostgres$getTableContent = function (model) {
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/tables/',
-						A2(_elm_lang$core$Basics_ops['++'], _p2._0, '/0/5/'))));
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_p2._0,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'/',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(model.currentQueryPage),
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'/',
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_elm_lang$core$Basics$toString(model.resultsPerPage),
+											'/'))))))));
 			return A2(
 				_elm_lang$http$Http$send,
 				_user$project$DjPostgres$GotTableContent,
@@ -9328,7 +9240,8 @@ var _user$project$DjPostgres$renderTableLink = function (table) {
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Events$onClick(
-				_user$project$DjPostgres$ClickTablePage(table.name)),
+				_user$project$DjPostgres$ClickTablePage(
+					{ctor: '_Tuple2', _0: table.name, _1: 1})),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$href('#view-table'),
@@ -9439,18 +9352,228 @@ var _user$project$DjPostgres$renderDatabasePage = function (model) {
 			});
 	}
 };
+var _user$project$DjPostgres$renderPagination = function (model) {
+	var _p4 = model.currentTable;
+	if (_p4.ctor === 'Nothing') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	} else {
+		return _elm_lang$core$Native_Utils.eq(model.queryResult.totalPage, 1) ? A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{ctor: '[]'}) : A2(
+			_elm_lang$html$Html$ul,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('pagination'),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$List$map,
+				function (pageIndex) {
+					return _elm_lang$core$Native_Utils.eq(pageIndex, model.currentQueryPage) ? A2(
+						_elm_lang$html$Html$li,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('current'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(pageIndex)),
+							_1: {ctor: '[]'}
+						}) : A2(
+						_elm_lang$html$Html$li,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(
+										_user$project$DjPostgres$ClickTablePage(
+											{ctor: '_Tuple2', _0: _p4._0, _1: pageIndex})),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$href('#view-table'),
+										_1: {ctor: '[]'}
+									}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										_elm_lang$core$Basics$toString(pageIndex)),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						});
+				},
+				A2(
+					_elm_lang$core$List$range,
+					1,
+					A2(_elm_lang$core$Basics$min, 20, model.queryResult.totalPage))));
+	}
+};
+var _user$project$DjPostgres$renderTablePage = function (model) {
+	var result = model.queryResult;
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('main'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$ul,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('tabs'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$li,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('active'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(result.count),
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										' results out of ',
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_elm_lang$core$Basics$toString(result.totalCount),
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												' records (',
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													_elm_lang$core$Basics$toString(result.from),
+													A2(
+														_elm_lang$core$Basics_ops['++'],
+														' to ',
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															_elm_lang$core$Basics$toString(result.to),
+															').')))))))),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('main-content'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$table,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('pure-table'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$thead,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$tr,
+											{ctor: '[]'},
+											A2(
+												_elm_lang$core$List$map,
+												function (column) {
+													return A2(
+														_elm_lang$html$Html$th,
+														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(column),
+															_1: {ctor: '[]'}
+														});
+												},
+												result.columns)),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$tbody,
+										{ctor: '[]'},
+										A2(
+											_elm_lang$core$List$indexedMap,
+											F2(
+												function (index, record) {
+													return A2(
+														_elm_lang$html$Html$tr,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$class(
+																_user$project$DjPostgres$getOddEvenString(index)),
+															_1: {ctor: '[]'}
+														},
+														A2(
+															_elm_lang$core$List$map,
+															function (column) {
+																return A2(
+																	_elm_lang$html$Html$td,
+																	{ctor: '[]'},
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html$text(column),
+																		_1: {ctor: '[]'}
+																	});
+															},
+															record));
+												}),
+											result.results)),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$DjPostgres$renderPagination(model),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _user$project$DjPostgres$GotTables = function (a) {
 	return {ctor: 'GotTables', _0: a};
 };
 var _user$project$DjPostgres$getTables = function (model) {
-	var _p4 = model.currentDatabase;
-	if (_p4.ctor === 'Nothing') {
+	var _p5 = model.currentDatabase;
+	if (_p5.ctor === 'Nothing') {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
 		var url = A2(
 			_elm_lang$core$Basics_ops['++'],
 			'http://localhost:8000/djpg/api/database/',
-			A2(_elm_lang$core$Basics_ops['++'], _p4._0, '/tables/'));
+			A2(_elm_lang$core$Basics_ops['++'], _p5._0, '/tables/'));
 		return A2(
 			_elm_lang$http$Http$send,
 			_user$project$DjPostgres$GotTables,
@@ -9461,17 +9584,17 @@ var _user$project$DjPostgres$ClickDatabasePage = function (a) {
 	return {ctor: 'ClickDatabasePage', _0: a};
 };
 var _user$project$DjPostgres$renderBreadcrumbDatabase = function (model) {
-	var _p5 = model.currentDatabase;
-	if (_p5.ctor === 'Nothing') {
+	var _p6 = model.currentDatabase;
+	if (_p6.ctor === 'Nothing') {
 		return _elm_lang$html$Html$text('');
 	} else {
-		var _p6 = _p5._0;
+		var _p7 = _p6._0;
 		return _elm_lang$core$Native_Utils.eq(model.currentPage, _user$project$DjPostgres$DatabasePage) ? A2(
 			_elm_lang$html$Html$li,
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p6),
+				_0: _elm_lang$html$Html$text(_p7),
 				_1: {ctor: '[]'}
 			}) : A2(
 			_elm_lang$html$Html$li,
@@ -9486,13 +9609,13 @@ var _user$project$DjPostgres$renderBreadcrumbDatabase = function (model) {
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$html$Html_Events$onClick(
-								_user$project$DjPostgres$ClickDatabasePage(_p6)),
+								_user$project$DjPostgres$ClickDatabasePage(_p7)),
 							_1: {ctor: '[]'}
 						}
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(_p6),
+						_0: _elm_lang$html$Html$text(_p7),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
@@ -9584,8 +9707,8 @@ var _user$project$DjPostgres$getDatabases = function () {
 }();
 var _user$project$DjPostgres$update = F2(
 	function (msg, model) {
-		var _p7 = msg;
-		switch (_p7.ctor) {
+		var _p8 = msg;
+		switch (_p8.ctor) {
 			case 'ClickHomePage':
 				return {ctor: '_Tuple2', _0: _user$project$DjPostgres$getInitialModel, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ClickSelectDatabasePage':
@@ -9593,12 +9716,12 @@ var _user$project$DjPostgres$update = F2(
 			case 'GoSelectDatabasePage':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'GotDatabases':
-				if (_p7._0.ctor === 'Ok') {
+				if (_p8._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							_user$project$DjPostgres$getInitialModel,
-							{databases: _p7._0._0, currentPage: _user$project$DjPostgres$SelectDatabasePage}),
+							{databases: _p8._0._0, currentPage: _user$project$DjPostgres$SelectDatabasePage}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -9608,7 +9731,7 @@ var _user$project$DjPostgres$update = F2(
 				var newModel = _elm_lang$core$Native_Utils.update(
 					_user$project$DjPostgres$getInitialModel,
 					{
-						currentDatabase: _elm_lang$core$Maybe$Just(_p7._0)
+						currentDatabase: _elm_lang$core$Maybe$Just(_p8._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -9616,12 +9739,12 @@ var _user$project$DjPostgres$update = F2(
 					_1: _user$project$DjPostgres$getTables(newModel)
 				};
 			case 'GotTables':
-				if (_p7._0.ctor === 'Ok') {
+				if (_p8._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							_user$project$DjPostgres$getInitialModel,
-							{currentDatabase: model.currentDatabase, tables: _p7._0._0, currentPage: _user$project$DjPostgres$DatabasePage}),
+							{currentDatabase: model.currentDatabase, tables: _p8._0._0, currentPage: _user$project$DjPostgres$DatabasePage}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -9631,7 +9754,8 @@ var _user$project$DjPostgres$update = F2(
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						currentTable: _elm_lang$core$Maybe$Just(_p7._0)
+						currentTable: _elm_lang$core$Maybe$Just(_p8._0._0),
+						currentQueryPage: _p8._0._1
 					});
 				return {
 					ctor: '_Tuple2',
@@ -9639,12 +9763,12 @@ var _user$project$DjPostgres$update = F2(
 					_1: _user$project$DjPostgres$getTableContent(newModel)
 				};
 			default:
-				if (_p7._0.ctor === 'Ok') {
+				if (_p8._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{currentPage: _user$project$DjPostgres$TablePage, queryResult: _p7._0._0}),
+							{currentPage: _user$project$DjPostgres$TablePage, queryResult: _p8._0._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -9750,8 +9874,8 @@ var _user$project$DjPostgres$renderHomePage = function (model) {
 };
 var _user$project$DjPostgres$renderPage = function (model) {
 	var pageContent = function () {
-		var _p8 = model.currentPage;
-		switch (_p8.ctor) {
+		var _p9 = model.currentPage;
+		switch (_p9.ctor) {
 			case 'HomePage':
 				return _user$project$DjPostgres$renderHomePage(model);
 			case 'SelectDatabasePage':
