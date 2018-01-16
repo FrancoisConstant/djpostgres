@@ -9036,6 +9036,42 @@ var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 var _user$project$DjPostgres$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
+var _user$project$DjPostgres$getPageList = F3(
+	function (currentPage, totalPage, maximumPages) {
+		if (_elm_lang$core$Native_Utils.cmp(totalPage, maximumPages) < 0) {
+			return A2(_elm_lang$core$List$range, 1, totalPage);
+		} else {
+			var delta = 6;
+			var result = _elm_lang$core$List$concat(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '::',
+						_0: 1,
+						_1: {ctor: '[]'}
+					},
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$List$filter,
+							function (x) {
+								return (_elm_lang$core$Native_Utils.cmp(x, totalPage) < 0) && (_elm_lang$core$Native_Utils.cmp(x, 1) > 0);
+							},
+							A2(_elm_lang$core$List$range, currentPage - delta, currentPage + delta)),
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '::',
+								_0: totalPage,
+								_1: {ctor: '[]'}
+							},
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+			return result;
+		}
+	});
 var _user$project$DjPostgres$getOddEvenString = function (index) {
 	return _elm_lang$core$Native_Utils.eq(
 		A2(_elm_lang$core$Basics_ops['%'], index, 2),
@@ -9353,6 +9389,7 @@ var _user$project$DjPostgres$renderDatabasePage = function (model) {
 	}
 };
 var _user$project$DjPostgres$renderPagination = function (model) {
+	var maximumPages = 15;
 	var _p4 = model.currentTable;
 	if (_p4.ctor === 'Nothing') {
 		return A2(
@@ -9412,10 +9449,7 @@ var _user$project$DjPostgres$renderPagination = function (model) {
 							_1: {ctor: '[]'}
 						});
 				},
-				A2(
-					_elm_lang$core$List$range,
-					1,
-					A2(_elm_lang$core$Basics$min, 20, model.queryResult.totalPage))));
+				A3(_user$project$DjPostgres$getPageList, model.currentQueryPage, model.queryResult.totalPage, maximumPages)));
 	}
 };
 var _user$project$DjPostgres$renderTablePage = function (model) {

@@ -378,6 +378,10 @@ renderTablePage model =
 
 renderPagination : Model -> Html Msg
 renderPagination model =
+    let
+        maximumPages =
+            15
+    in
     case model.currentTable of
         Nothing ->
             div [] []
@@ -398,12 +402,31 @@ renderPagination model =
                                         [ text (toString pageIndex) ]
                                     ]
                         )
-                        (List.range 1 (min 20 model.queryResult.totalPage))
+                        (getPageList model.currentQueryPage model.queryResult.totalPage maximumPages)
                     )
 
 
+getPageList : Int -> Int -> Int -> List Int
+getPageList currentPage totalPage maximumPages =
+    if totalPage < maximumPages then
+        List.range 1 totalPage
+    else
+        let
+            delta =
+                6
 
--- TODO handle pagination after 20 with good UX
+            result =
+                List.concat
+                    [ [ 1 ]
+                    , List.filter (\x -> x < totalPage && x > 1) (List.range (currentPage - delta) (currentPage + delta))
+                    , [ totalPage ]
+                    ]
+        in
+        result
+
+
+
+-- List.concat [(List.range 1 (min maximumPages totalPage)), [totalPage]]
 -- SUBSCRIPTIONS
 
 
