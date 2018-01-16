@@ -299,10 +299,16 @@ renderSelectDatabasePage model =
 
 renderDatabaseLink : Database -> Html Msg
 renderDatabaseLink database =
-    li []
-        [ button [ onClick (ClickDatabasePage database.djangoName), class "pure-button database-button" ]
-            [ text database.djangoName, br [] [], span [] [ text database.actualName ] ]
-        ]
+    if database.isPostgres then
+        li []
+            [ button [ onClick (ClickDatabasePage database.djangoName), class "pure-button database-button" ]
+                [ text database.djangoName, br [] [], span [] [ text database.actualName ] ]
+            ]
+    else
+        li []
+            [ button [ class "pure-button button-warning database-button" ]
+                [ text database.djangoName, br [] [], span [] [ text database.actualName ] ]
+            ]
 
 
 renderDatabasePage : Model -> Html Msg
