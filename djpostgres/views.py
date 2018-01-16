@@ -3,11 +3,15 @@ from django.db.transaction import get_connection
 from django.http.response import JsonResponse
 from django.shortcuts import render
 
+from djpostgres.decorators import djpostgres_access
 
+
+@djpostgres_access()
 def index(request):
     return render(request, "djpostgres/index.html", {})
 
 
+@djpostgres_access()
 def databases(request):
     """
     TODO: test
@@ -29,6 +33,7 @@ def databases(request):
     )
 
 
+@djpostgres_access()
 def tables(request, database):
     # TODO unit test
     conn = get_connection(using=database)
@@ -42,6 +47,7 @@ def tables(request, database):
     )
 
 
+@djpostgres_access()
 def table(request, database, table, page, per_page):
     # TODO: unit test
     conn = get_connection(using=database)

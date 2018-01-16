@@ -401,9 +401,9 @@ renderPagination model =
                         (List.range 1 (min 20 model.queryResult.totalPage))
                     )
 
+
+
 -- TODO handle pagination after 20 with good UX
-
-
 -- SUBSCRIPTIONS
 
 

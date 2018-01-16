@@ -9623,7 +9623,7 @@ var _user$project$DjPostgres$renderBreadcrumbDatabase = function (model) {
 	}
 };
 var _user$project$DjPostgres$renderDatabaseLink = function (database) {
-	return A2(
+	return database.isPostgres ? A2(
 		_elm_lang$html$Html$li,
 		{ctor: '[]'},
 		{
@@ -9639,6 +9639,42 @@ var _user$project$DjPostgres$renderDatabaseLink = function (database) {
 						_0: _elm_lang$html$Html_Attributes$class('pure-button database-button'),
 						_1: {ctor: '[]'}
 					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(database.djangoName),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$span,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(database.actualName),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$button,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('pure-button button-warning database-button'),
+					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',

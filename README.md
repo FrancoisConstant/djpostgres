@@ -5,9 +5,7 @@ WIP - barely started - learning ELM basically
 ## TODO:
 
 * run custom SQL
-* secure (via setting + login?)
 * pip versioning
-* style
 * README
 
 
@@ -26,6 +24,11 @@ INSTALLED_APPS = [
     'djpostgres'
 ]
 ```
+
+```
+ACTIVATE_DJPOSTGRES = DEBUG
+```
+
 
 ```
 urlpatterns = [
