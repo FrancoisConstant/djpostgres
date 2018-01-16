@@ -4,7 +4,6 @@ WIP - barely started - learning ELM basically
 
 ## TODO:
 
-* list record with pagination
 * run custom SQL
 * secure (via setting + login?)
 * pip versioning

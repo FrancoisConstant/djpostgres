@@ -13,7 +13,7 @@ def databases(request):
     TODO: test
     :return: JSON with databases listing.
     For example:
-    {"databases": [{"is_postgres": true, "actual_name": "iwc_forum_master_4", "django_name": "secondary"},
+    {"databases": [{"is_postgres": true, "actual_name": "project_x", "django_name": "secondary"},
                    {"is_postgres": false, "actual_name": ".../db.sqlite3", "django_name": "default"}]}
     """
     return JsonResponse(
